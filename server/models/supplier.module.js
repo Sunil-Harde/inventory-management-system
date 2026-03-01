@@ -11,14 +11,15 @@ const suppliersSchema = mongoose.Schema({
         type: String,
         require: true
     },
-
+    
     contactPerson: {
         type: String,
     },
-
+    
     email: {
         type: String,
-        unique: true
+        unique: true,
+        require: true
     },
 
     address: {
