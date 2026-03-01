@@ -78,6 +78,40 @@ const getSupplier = async (req, res) => {
 }
 
 
+const getOneSupplier = async (req, res) => {
+
+    try {
+
+        const supplierId = req.params.id
+
+        const findSupplier = await Suppliers.findById(supplierId)
+
+        if (!findSupplier || findSupplier.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No Supplier Present"
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            totalSupplier: findSupplier.length,
+            data: findSupplier
+        })
+
+    }
+
+    catch (err) {
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        })
+
+    }
+}
+
+
 const deleteSupplier = async (req, res) => {
 
     try {
@@ -188,5 +222,6 @@ module.exports = {
     handelCreateSupplier,
     getSupplier,
     deleteSupplier,
-    updateSupplier
+    updateSupplier,
+    getOneSupplier
 }
