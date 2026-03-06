@@ -1,6 +1,6 @@
 const Suppliers = require('../models/supplier.module')
 
-const handelCreateSupplier = async (req, res) => {
+const createSupplier = async (req, res) => {
     try {
 
         const { phone, email, companyName, contactPerson, address } = req.body
@@ -218,8 +218,10 @@ const updateSupplier = async (req, res) => {
     });
   }
 };
+
+
 module.exports = {
-    handelCreateSupplier,
+    createSupplier,
     getSupplier,
     deleteSupplier,
     updateSupplier,

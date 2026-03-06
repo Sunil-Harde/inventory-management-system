@@ -1,21 +1,32 @@
-const mongoose = require("mongoose")
-const express = require("express")
-const connectToMongodb = require("./config/db")
-const useSupplier = require('./routes/supplier.routes')
-const app = express()
+const express = require("express");
+const cors = require("cors"); 
+const connectToMongodb = require("./config/db");
 
+// 1. Import your route files
+const supplierRoutes = require('./routes/supplier.routes');
+const reportRoutes = require('./routes/report.routes'); // NEW: Import reports
 
-app.use(express.json())
+const app = express();
 
+// 2. Global Middleware
+app.use(cors()); 
+app.use(express.json()); 
+
+connectToMongodb();
+
+// 4. Base Test Route
 app.get('/', (req, res) => {
     res.status(200).json({
         success: true,
-        message: "api is runnign "
-    })
-})
+        message: "InventIQ API is running successfully!"
+    });
+});
 
-connectToMongodb()
+// 5. Mount the API Routes
+app.use('/api', supplierRoutes);
+app.use('/api', reportRoutes); // NEW: Connect the dashboard API
 
-app.use('/api', useSupplier)
-
-app.listen(5000, console.log("Server Created  5000"))
+// 6. Start the Server directly on port 5000
+app.listen(5000, () => {
+    console.log("🚀 Server Created on port 5000");
+});
