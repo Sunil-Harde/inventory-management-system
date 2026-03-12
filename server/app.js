@@ -2,11 +2,17 @@ const express = require("express");
 const cors = require("cors"); 
 const connectToMongodb = require("./config/db");
 
+const errorHandling = require("./middleware/error.middleware.js")
+const useInventory = require('./routes/inventory.routes');
 // 1. Import your route files
 const supplierRoutes = require('./routes/supplier.routes');
 const reportRoutes = require('./routes/report.routes'); // NEW: Import reports
+const transactionRoutes = require('./routes/transaction.routes');
+const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
 
 const app = express();
+
 
 // 2. Global Middleware
 app.use(cors()); 
@@ -23,8 +29,14 @@ app.get('/', (req, res) => {
 });
 
 // 5. Mount the API Routes
-app.use('/api', supplierRoutes);
+app.use('/api/suppliers', supplierRoutes);
 app.use('/api', reportRoutes); // NEW: Connect the dashboard API
+app.use('/api/inventory', useInventory);
+app.use('/api', transactionRoutes);
+app.use('/api', authRoutes);
+app.use('/api', userRoutes);
+
+app.use(errorHandling); 
 
 // 6. Start the Server directly on port 5000
 app.listen(5000, () => {

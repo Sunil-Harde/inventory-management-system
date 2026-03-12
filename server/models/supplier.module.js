@@ -1,37 +1,30 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
-const suppliersSchema = mongoose.Schema({
-
+const suppliersSchema = new mongoose.Schema({
     companyName: {
         type: String,
-        require: true
+        required: true // Added 'd'
     },
-
     phone: {
         type: String,
-        require: true
+        required: true // Added 'd'
     },
-    
     contactPerson: {
         type: String,
     },
-    
     email: {
         type: String,
-        unique: true,
-        require: true
+        unique: false,
+        required: true // Added 'd'
     },
-
     address: {
         type: String
     }
-
 }, {
     timestamps: true
-})
+});
 
+// THE FIX: Changed "Suppliers" to "Supplier" to match your Product's ref exactly
+const Supplier = mongoose.model("Supplier", suppliersSchema);
 
-
-const Suppliers = mongoose.model("Suppliers", suppliersSchema)
-
-module.exports = Suppliers
+module.exports = Supplier;

@@ -1,153 +1,103 @@
-const Suppliers = require('../models/supplier.module')
+// File: controllers/supplier.controller.js
+const Suppliers = require('../models/Supplier.module');
+const mongoose = require("mongoose"); // Moved to the top!
 
-const createSupplier = async (req, res) => {
-    try {
+const createSupplier = async (req, res, next) => {
+  try {
+    const { phone, email, companyName, contactPerson, address } = req.body;
 
-        const { phone, email, companyName, contactPerson, address } = req.body
-
-        if (!phone || !companyName || !email) {
-            return res.status(400).json({
-                message: "all filled required"
-            })
-        }
-
-        const newSuppliers = await Suppliers.create({
-            phone,
-            companyName,
-            email,
-            contactPerson,
-            address
-        })
-
-        return res.status(201).json({
-            status: "success",
-            data: newSuppliers
-        })
-
+    if (!phone || !companyName || !email) {
+      return res.status(400).json({
+        message: "all filled required"
+      });
     }
 
-    catch (err) {
+    const newSuppliers = await Suppliers.create({
+      phone,
+      companyName,
+      email,
+      contactPerson,
+      address
+    });
 
-        if (err.code === 11000) {
-            const field = Object.keys(err.keyValue)[0];
-            const value = err.keyValue[field];
+    return res.status(201).json({
+      status: "success",
+      data: newSuppliers
+    });
 
+  } catch (err) {
+    next(err);
+  }
+};
 
-            return res.status(400).json({
-                status: "error",
-                message: `${value} already exists`,
-            });
-        }
+const getSupplier = async (req, res, next) => {
+  try {
+    const findSupplier = await Suppliers.find();
 
-        return res.status(500).json({
-            status: "Error",
-            error: err
-        })
-    }
-}
-
-const getSupplier = async (req, res) => {
-
-    try {
-
-        const findSupplier = await Suppliers.find()
-
-        if (!findSupplier || findSupplier.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "No Supplier Present"
-            })
-        }
-
-        return res.status(200).json({
-            success: true,
-            totalSupplier: findSupplier.length,
-            data: findSupplier
-        })
-
+    if (!findSupplier || findSupplier.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No Supplier Present"
+      });
     }
 
-    catch (err) {
+    return res.status(200).json({
+      success: true,
+      totalSupplier: findSupplier.length,
+      data: findSupplier
+    });
 
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        })
+  } catch (err) {
+    next(err);
+  }
+};
 
-    }
-}
+const getOneSupplier = async (req, res, next) => {
+  try {
+    const supplierId = req.params.id;
+    const findSupplier = await Suppliers.findById(supplierId);
 
-
-const getOneSupplier = async (req, res) => {
-
-    try {
-
-        const supplierId = req.params.id
-
-        const findSupplier = await Suppliers.findById(supplierId)
-
-        if (!findSupplier || findSupplier.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "No Supplier Present"
-            })
-        }
-
-        return res.status(200).json({
-            success: true,
-            totalSupplier: findSupplier.length,
-            data: findSupplier
-        })
-
+    // Fixed: findById returns an object, so we just check if it's null (no .length needed)
+    if (!findSupplier) {
+      return res.status(404).json({
+        success: false,
+        message: "No Supplier Present"
+      });
     }
 
-    catch (err) {
+    return res.status(200).json({
+      success: true,
+      data: findSupplier
+    });
 
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        })
+  } catch (err) {
+    next(err);
+  }
+};
 
-    }
-}
+const deleteSupplier = async (req, res, next) => {
+  try {
+    const supplierId = req.params.id;
+    const deleteSupplier = await Suppliers.findByIdAndDelete(supplierId);
 
-
-const deleteSupplier = async (req, res) => {
-
-    try {
-
-        const supplierId = req.params.id
-        const deleteSupplier = await Suppliers.findByIdAndDelete(supplierId)
-
-        if (!deleteSupplier) {
-            return res.status(404).json({
-                message: "Supplier Not Present"
-            })
-        }
-
-        return res.status(200).json({
-            status: true,
-            message: `Supplier Deleted successfully`,
-            data: deleteSupplier
-        })
-
+    if (!deleteSupplier) {
+      return res.status(404).json({
+        message: "Supplier Not Present"
+      });
     }
 
-    catch (err) {
+    return res.status(200).json({
+      status: true,
+      message: `Supplier Deleted successfully`,
+      data: deleteSupplier
+    });
 
-        res.status(404).json({
-            message: err,
-            get: "Error"
-        })
-    }
+  } catch (err) {
+    next(err);
+  }
+};
 
-
-}
-
-
-const mongoose = require("mongoose");
-
-const updateSupplier = async (req, res) => {
+const updateSupplier = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { phone, email, companyName, contactPerson, address } = req.body;
@@ -200,30 +150,14 @@ const updateSupplier = async (req, res) => {
     });
 
   } catch (err) {
-
-    // Handle duplicate unique fields
-    if (err.code === 11000) {
-      const field = Object.keys(err.keyValue)[0];
-      const value = err.keyValue[field];
-
-      return res.status(400).json({
-        success: false,
-        message: `${field} '${value}' already exists`
-      });
-    }
-
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error"
-    });
+    next(err);
   }
 };
 
-
 module.exports = {
-    createSupplier,
-    getSupplier,
-    deleteSupplier,
-    updateSupplier,
-    getOneSupplier
-}
+  createSupplier,
+  getSupplier,
+  deleteSupplier,
+  updateSupplier,
+  getOneSupplier
+};

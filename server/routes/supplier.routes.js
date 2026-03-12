@@ -1,13 +1,21 @@
 const express = require('express');
-const { createSupplier, getSupplier, deleteSupplier, updateSupplier,getOneSupplier } = require('../controllers/supplier.controller');
+const { 
+    createSupplier, 
+    getSupplier, 
+    deleteSupplier, 
+    updateSupplier,
+    getOneSupplier 
+} = require('../controllers/supplier.controller');
 
+const routes = express.Router();
 
-const routes = express.Router()
+// These become /api/suppliers
+routes.post('/', createSupplier);
+routes.get('/', getSupplier);
 
-routes.post('/supplier' , createSupplier)
-routes.get('/supplier' , getSupplier)
-routes.get('/supplier/:id' , getOneSupplier)
-routes.delete('/supplier/:id' , deleteSupplier)
-routes.put('/supplier/:id' , updateSupplier)
+// These become /api/suppliers/:id
+routes.get('/:id', getOneSupplier);
+routes.put('/:id', updateSupplier);
+routes.delete('/:id', deleteSupplier);
 
 module.exports = routes;
