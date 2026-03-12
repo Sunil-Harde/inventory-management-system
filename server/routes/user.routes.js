@@ -1,7 +1,7 @@
 // File: routes/user.routes.js
 const express = require('express');
 const router = express.Router();
-const { getUserProfile, getAllUsers } = require('../controllers/user.controller');
+const { getUserProfile, getAllUsers } = require('../controllers/user.controller.js');
 
 // Becomes GET /api/users/profile
 router.get('/users/profile', getUserProfile);

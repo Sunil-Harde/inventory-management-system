@@ -1,7 +1,7 @@
 // File: routes/auth.routes.js
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser } = require('../controllers/auth.controller');
+const { registerUser, loginUser } = require('../controllers/auth.controller.js');
 
 // Becomes POST /api/auth/register
 router.post('/auth/register', registerUser);

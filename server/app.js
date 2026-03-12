@@ -3,13 +3,13 @@ const cors = require("cors");
 const connectToMongodb = require("./config/db");
 
 const errorHandling = require("./middleware/error.middleware.js")
-const useInventory = require('./routes/inventory.routes');
+const useInventory = require('./routes/inventory.routes.js');
 // 1. Import your route files
-const supplierRoutes = require('./routes/supplier.routes');
-const reportRoutes = require('./routes/report.routes'); // NEW: Import reports
-const transactionRoutes = require('./routes/transaction.routes');
-const authRoutes = require('./routes/auth.routes');
-const userRoutes = require('./routes/user.routes');
+const supplierRoutes = require('./routes/supplier.routes.js');
+const reportRoutes = require('./routes/report.routes.js'); // NEW: Import reports
+const transactionRoutes = require('./routes/transaction.routes.js');
+const authRoutes = require('./routes/auth.routes.js');
+const userRoutes = require('./routes/user.routes.js');
 
 const app = express();
 

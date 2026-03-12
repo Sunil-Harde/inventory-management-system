@@ -1,6 +1,6 @@
 // File: controllers/transaction.controller.js
-const Transaction = require('../models/Transaction.module');
-const Product = require('../models/Product.module'); // We need this to update the stock!
+const Transaction = require('../models/Transaction.module.js');
+const Product = require('../models/Product.module.js'); // We need this to update the stock!
 
 // 1. Create a Transaction (POST)
 const createTransaction = async (req, res) => {

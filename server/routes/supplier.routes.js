@@ -5,7 +5,7 @@ const {
     deleteSupplier, 
     updateSupplier,
     getOneSupplier 
-} = require('../controllers/supplier.controller');
+} = require('../controllers/supplier.controller.js');
 
 const routes = express.Router();
 

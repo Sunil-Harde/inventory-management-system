@@ -1,5 +1,5 @@
 // File: controllers/user.controller.js
-const User = require('../models/User.module');
+const User = require('../models/User.module.js');
 
 // 1. Get Logged-In User's Profile (GET)
 const getUserProfile = async (req, res) => {

@@ -9,7 +9,7 @@ const {
     deleteProduct,
     uploadProductImage,
     getUniqueBrands
-} = require('../controllers/inventory.controller');
+} = require('../controllers/inventory.controller.js');
 
 // GET and POST for the main list
 router.post('/', createProduct);

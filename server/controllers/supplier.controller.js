@@ -1,5 +1,5 @@
 // File: controllers/supplier.controller.js
-const Suppliers = require('../models/Supplier.module');
+const Suppliers = require('../models/Supplier.module.js');
 const mongoose = require("mongoose"); // Moved to the top!
 
 const createSupplier = async (req, res, next) => {

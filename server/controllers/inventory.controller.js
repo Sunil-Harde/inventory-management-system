@@ -1,5 +1,5 @@
 // File: controllers/inventory.controller.js
-const Product = require('../models/Product.module');
+const Product = require('../models/Product.module.js');
 
 // 1. POST /api/inventory - Add a new auto part
 const createProduct = async (req, res) => {
