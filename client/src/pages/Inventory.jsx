@@ -5,9 +5,7 @@ import Loader from '../components/Loader';
 import { EyeIcon, PencilSquareIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from 'sonner';
 
-// 👇 Set your API base URL here. Change this to your live Render URL when ready!
 const API_BASE = "http://localhost:5000"; 
-// Example: const API_BASE = "https://your-inventory-api.onrender.com";
 
 // 1. INSTRUCTIONS FOR THE UNIVERSAL FORM
 const inventorySchema = [
@@ -17,7 +15,6 @@ const inventorySchema = [
     fields: [
       { name: 'partName', label: 'Part Name', type: 'text', placeholder: 'e.g. BS6 Wiring Harness', required: true },
       { name: 'sku', label: 'SKU (Barcode)', type: 'text', placeholder: 'WH-APE-BS6-101', required: true },
-      // API_BASE injected here:
       { name: 'supplierId', label: 'Supplier', type: 'async-select', fetchUrl: `${API_BASE}/api/suppliers`, displayKey: 'companyName', required: true },
       { name: 'vehicleType', label: 'Vehicle Type', type: 'select', options: ['2W', '3W', '4W', 'EV'], required: true }
     ]
@@ -32,10 +29,12 @@ const inventorySchema = [
     ]
   },
   {
-    sectionTitle: 'Inventory & Pricing',
-    columns: 3, 
+    sectionTitle: 'Financials & Stock',
+    columns: 2, 
     fields: [
-      { name: 'price', label: 'Price (₹)', type: 'number', placeholder: '1200', required: true },
+      // ✨ FIX: Split into Cost Price and Selling Price!
+      { name: 'costPrice', label: 'Cost Price (₹)', type: 'number', placeholder: '800', required: true },
+      { name: 'sellingPrice', label: 'Selling Price (₹)', type: 'number', placeholder: '1200', required: true },
       { name: 'currentStock', label: 'Initial Stock', type: 'number', placeholder: '50', required: true },
       { name: 'minStockLevel', label: 'Low Stock Warning', type: 'number', placeholder: '5', required: true }
     ]
@@ -48,7 +47,9 @@ const formatInventoryData = (data) => ({
   sku: data.sku,
   supplierId: data.supplierId,
   vehicleType: Array.isArray(data.vehicleType) ? data.vehicleType : [data.vehicleType],
-  price: Number(data.price),
+  // ✨ FIX: Format both prices
+  costPrice: Number(data.costPrice),
+  sellingPrice: Number(data.sellingPrice),
   currentStock: Number(data.currentStock),
   minStockLevel: Number(data.minStockLevel || 5),
   specifications: {
@@ -82,7 +83,6 @@ function Inventory() {
   const fetchInventory = async () => {
     setIsLoading(true);
     try {
-      // API_BASE injected here:
       const response = await fetch(`${API_BASE}/api/inventory`);
       const result = await response.json();
       if (result.status === "success" || result.data) setInventory(result.data);
@@ -116,11 +116,8 @@ function Inventory() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this auto part?")) {
       const toastId = toast.loading("Deleting part..."); 
-
       try {
-        // API_BASE injected here:
         const res = await fetch(`${API_BASE}/api/inventory/${id}`, { method: 'DELETE' });
-        
         if (res.ok) {
           toast.success("Part deleted successfully!", { id: toastId }); 
           fetchInventory(); 
@@ -152,25 +149,36 @@ function Inventory() {
               <tr className="bg-gray-100 text-gray-700 uppercase text-sm font-semibold">
                 <th className="p-4 border-b">Part Name & SKU</th>
                 <th className="p-4 border-b">Category</th>
-                <th className="p-4 border-b">Price</th>
+                {/* ✨ Updated column headers */}
+                <th className="p-4 border-b">Cost Price</th>
+                <th className="p-4 border-b">Selling Price</th>
                 <th className="p-4 border-b">Stock Level</th>
-                <th className="p-4 border-b">Status</th>
                 <th className="p-4 border-b text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               {inventory.map((item) => (
                 <tr key={item._id} className="hover:bg-gray-50 border-b transition">
-                  <td className="p-4"><div className="font-bold text-gray-800">{item.partName}</div><div className="text-sm text-gray-500">{item.sku}</div></td>
-                  <td className="p-4"><div className="text-gray-800">{item.vehicleType?.join(', ')}</div><div className="text-xs text-gray-500">{item.specifications?.fuelType}</div></td>
-                  <td className="p-4 font-semibold text-gray-700">₹{item.price}</td>
-                  <td className="p-4"><span className="font-bold text-gray-800">{item.currentStock}</span> <span className="text-sm text-gray-400">/ {item.minStockLevel} min</span></td>
                   <td className="p-4">
-                    {item.currentStock <= item.minStockLevel ? (
-                      <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold">Low Stock</span>
-                    ) : (
-                      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">In Stock</span>
-                    )}
+                    <div className="font-bold text-gray-800">{item.partName}</div>
+                    <div className="text-sm text-gray-500">{item.sku}</div>
+                  </td>
+                  <td className="p-4">
+                    <div className="text-gray-800">{item.vehicleType?.join(', ')}</div>
+                    <div className="text-xs text-gray-500">{item.specifications?.fuelType}</div>
+                  </td>
+                  {/* ✨ Display both prices */}
+                  <td className="p-4 font-semibold text-gray-500">₹{item.costPrice?.toLocaleString('en-IN') || 0}</td>
+                  <td className="p-4 font-bold text-blue-600">₹{item.sellingPrice?.toLocaleString('en-IN') || 0}</td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-gray-800">{item.currentStock}</span> 
+                      {item.currentStock <= item.minStockLevel ? (
+                        <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-md text-xs font-bold">Low</span>
+                      ) : (
+                        <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md text-xs font-bold">OK</span>
+                      )}
+                    </div>
                   </td>
                   <td className="p-4">
                     <div className="flex justify-center gap-3">
@@ -181,6 +189,11 @@ function Inventory() {
                   </td>
                 </tr>
               ))}
+              {inventory.length === 0 && (
+                <tr>
+                  <td colSpan="6" className="p-8 text-center text-gray-500 font-medium">No inventory items found. Add a new part to get started!</td>
+                </tr>
+              )}
             </tbody>
           </table>
         )}
@@ -190,7 +203,6 @@ function Inventory() {
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center z-50 transition-all ">
          <DynamicForm 
             title="Auto Part"
-            // API_BASE injected here:
             apiUrl={`${API_BASE}/api/inventory`}
             schema={inventorySchema} 
             initialData={isEditOpen ? selectedItem : null} 
@@ -215,9 +227,25 @@ function Inventory() {
             </div>
             
             <div className="p-6 space-y-4">
+              
+              {/* ✨ Financial Breakdown */}
+              <div className="grid grid-cols-2 gap-4 mb-2">
+                <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Cost Price</p>
+                  <p className="text-lg font-semibold text-gray-700">₹{selectedItem.costPrice?.toLocaleString('en-IN') || 0}</p>
+                </div>
+                <div className="bg-blue-50 p-3 rounded-xl border border-blue-100">
+                  <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">Selling Price</p>
+                  <p className="text-lg font-black text-blue-800">₹{selectedItem.sellingPrice?.toLocaleString('en-IN') || 0}</p>
+                </div>
+              </div>
+
+              {/* ✨ Profit Margin Badge */}
               <div className="flex justify-between items-center border-b border-gray-100 pb-4">
-                <span className="text-gray-500">Price</span>
-                <span className="text-xl font-bold text-green-600">₹{selectedItem.price}</span>
+                <span className="text-gray-500">Gross Profit per Unit</span>
+                <span className="font-black text-emerald-600 px-3 py-1 bg-emerald-50 rounded-full">
+                  + ₹{(selectedItem.sellingPrice - selectedItem.costPrice).toLocaleString('en-IN')}
+                </span>
               </div>
               
               <div className="flex justify-between items-center border-b border-gray-100 pb-4">

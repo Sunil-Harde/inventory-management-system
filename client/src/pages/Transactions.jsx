@@ -13,17 +13,19 @@ const transactionSchema = [
     columns: 2, 
     fields: [
       { name: 'type', label: 'Transaction Type', type: 'select', options: ['IN', 'OUT'], required: true },
-      // ✨ Notice how it fetches from /inventory and displays the partName!
-      { name: 'inventoryId', label: 'Auto Part', type: 'async-select', fetchEndpoint: '/inventory', displayKey: 'partName', required: true },
+      // ✨ FIX: Changed 'inventoryId' to 'productId' to match your backend!
+      { name: 'productId', label: 'Auto Part', type: 'async-select', fetchEndpoint: '/inventory', displayKey: 'partName', required: true },
       { name: 'quantity', label: 'Quantity', type: 'number', placeholder: 'e.g. 10', required: true },
-      { name: 'reference', label: 'Reference / Invoice #', type: 'text', placeholder: 'INV-2024-001' }
+      // ✨ FIX: Changed to referenceNumber
+      { name: 'referenceNumber', label: 'Reference / Invoice #', type: 'text', placeholder: 'INV-2024-001' }
     ]
   },
   {
     sectionTitle: 'Additional Information',
     columns: 1, 
     fields: [
-      { name: 'notes', label: 'Notes', type: 'text', placeholder: 'Reason for transaction...' }
+      // ✨ FIX: Changed to remarks
+      { name: 'remarks', label: 'Notes', type: 'text', placeholder: 'Reason for transaction...' }
     ]
   }
 ];
@@ -31,10 +33,10 @@ const transactionSchema = [
 // 2. DATA FORMATTER
 const formatTransactionData = (data) => ({
   type: data.type,
-  inventoryId: data.inventoryId,
+  productId: data.productId, // Matches backend
   quantity: Number(data.quantity),
-  reference: data.reference || '',
-  notes: data.notes || ''
+  referenceNumber: data.referenceNumber || '', // Matches backend
+  remarks: data.remarks || '' // Matches backend
 });
 
 // Helper to handle populated data when editing
@@ -42,8 +44,7 @@ const flattenInitialData = (item) => {
   if (!item) return null;
   return {
     ...item,
-    // If the backend populates the inventory object, we just want the ID for the form dropdown
-    inventoryId: item.inventoryId?._id || item.inventoryId
+    productId: item.productId?._id || item.productId // Safely grab the ID for editing
   };
 };
 
@@ -102,9 +103,9 @@ function Transactions() {
     }
   };
 
-  // Helper function to safely get the part name
+  // ✨ FIX: Now looks for `productId.partName` instead of `inventoryId`
   const getPartName = (item) => {
-    if (item.inventoryId && item.inventoryId.partName) return item.inventoryId.partName;
+    if (item.productId && item.productId.partName) return item.productId.partName;
     return 'Unknown Part (Deleted)';
   };
 
@@ -148,6 +149,8 @@ function Transactions() {
                   </td>
                   <td className="p-4">
                     <div className="font-bold text-gray-800">{getPartName(item)}</div>
+                    {/* Optional: Show SKU if available */}
+                    {item.productId?.sku && <div className="text-xs text-gray-500 font-mono">{item.productId.sku}</div>}
                   </td>
                   <td className="p-4">
                     <div className="font-bold text-lg text-gray-700">{item.quantity} units</div>
@@ -156,7 +159,7 @@ function Transactions() {
                     <div className="font-medium text-gray-800">
                       {new Date(item.createdAt || Date.now()).toLocaleDateString()}
                     </div>
-                    <div className="text-xs text-gray-500 font-mono mt-0.5">{item.reference || 'No Ref'}</div>
+                    <div className="text-xs text-gray-500 font-mono mt-0.5">{item.referenceNumber || 'No Ref'}</div>
                   </td>
                   <td className="p-4">
                     <div className="flex justify-center gap-3">
@@ -194,7 +197,7 @@ function Transactions() {
         </div>
       )}
 
-      {/* --- VIEW DETAILS MODAL --- */}
+      {/* --- VIEW DETAILS MODAL (Upgraded with full info) --- */}
       {isViewOpen && selectedItem && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center z-50 transition-all duration-300">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
@@ -203,7 +206,7 @@ function Transactions() {
                 <h2 className="text-xl font-bold text-white">
                   {selectedItem.type === 'IN' ? 'Stock Received' : 'Stock Dispatched'}
                 </h2>
-                <p className="text-white/80 text-sm mt-1 font-mono">{selectedItem.reference || `TXN-${selectedItem._id.slice(-6).toUpperCase()}`}</p>
+                <p className="text-white/80 text-sm mt-1 font-mono">ID: {selectedItem._id}</p>
               </div>
               <button onClick={closeAllModals} className="text-white hover:text-white/70 transition">
                 <XMarkIcon className="w-6 h-6" />
@@ -211,9 +214,13 @@ function Transactions() {
             </div>
             
             <div className="p-6 space-y-4">
+              
               <div className="flex justify-between items-center border-b border-gray-100 pb-4">
                 <span className="text-gray-500">Auto Part</span>
-                <span className="text-lg font-bold text-gray-800">{getPartName(selectedItem)}</span>
+                <div className="text-right">
+                  <span className="block text-lg font-bold text-gray-800">{getPartName(selectedItem)}</span>
+                  {selectedItem.productId?.sku && <span className="text-sm font-mono text-gray-500">{selectedItem.productId.sku}</span>}
+                </div>
               </div>
               
               <div className="flex justify-between items-center border-b border-gray-100 pb-4">
@@ -223,10 +230,20 @@ function Transactions() {
                 </span>
               </div>
 
-              {selectedItem.notes && (
+              <div className="flex justify-between items-center border-b border-gray-100 pb-4">
+                <span className="text-gray-500">Reference No.</span>
+                <span className="font-semibold text-gray-800">{selectedItem.referenceNumber || 'N/A'}</span>
+              </div>
+
+              <div className="flex justify-between items-center border-b border-gray-100 pb-4">
+                <span className="text-gray-500">Date Logged</span>
+                <span className="font-medium text-gray-800">{new Date(selectedItem.createdAt).toLocaleString()}</span>
+              </div>
+
+              {selectedItem.remarks && (
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 mt-4">
-                  <h4 className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Notes</h4>
-                  <p className="text-sm text-gray-800">{selectedItem.notes}</p>
+                  <h4 className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Remarks / Notes</h4>
+                  <p className="text-sm text-gray-800">{selectedItem.remarks}</p>
                 </div>
               )}
             </div>

@@ -1,7 +1,7 @@
 // File: models/Product.js
 const mongoose = require('mongoose');
 
-// THE FIX: This registers the Supplier model before the Product model tries to use it.
+// This registers the Supplier model before the Product model tries to use it.
 require('./Supplier.module.js'); 
 
 const productSchema = new mongoose.Schema({
@@ -11,11 +11,14 @@ const productSchema = new mongoose.Schema({
     // Vehicle Category (3W, EV, etc.)
     vehicleType: [{ type: String, enum: ['2W', '3W', '4W', 'EV'], required: true }],
     
-    // Linking to the Supplier you made in Step 1
+    // Linking to the Supplier
     supplierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier' },
     
-    // Price and Stock
-    price: { type: Number, required: true },
+    // FINANCIALS: Price and Profit Tracking
+    costPrice: { type: Number, required: true },    // What you pay the supplier (Investment)
+    sellingPrice: { type: Number, required: true }, // What you sell it for (Revenue)
+    
+    // STOCK LEVELS
     currentStock: { type: Number, default: 0 }, // Always starts at 0
     minStockLevel: { type: Number, default: 5 },
     

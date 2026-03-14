@@ -8,6 +8,9 @@ import Dashboard from './pages/Dashboard';
 import Inventory from './pages/Inventory';
 import Suppliers from './pages/Suppliers'; // <-- Import it here!
 import Transactions from './pages/Transactions';
+import Reports from './pages/Reports';
+import StockOut from './pages/StockOut';
+import StockIn from './pages/StockIn';
 function App() {
   return (
     <Router>
@@ -19,6 +22,10 @@ function App() {
             <Route path="/inventory" element={<Inventory />} />
             <Route path="/suppliers" element={<Suppliers />} /> {/* <-- Add Route here! */}
             <Route path="/transactions" element={<Transactions />} /> {/* ✨ Add this line! */}
+            <Route path="/reports" element={<Reports />} /> {/* ✨ Add the Reports Route! */}
+            <Route path="/stock-out" element={<StockOut />} /> {/* ✨ Add the Stock Out Route! */}
+            <Route path="/stock-in" element={<StockIn/>} /> {/* ✨ Add the Stock Out Route! */}
+            
           </Routes>
         </div>
       </div>
