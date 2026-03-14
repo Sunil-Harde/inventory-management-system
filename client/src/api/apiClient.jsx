@@ -1,6 +1,7 @@
 // File: src/api/apiClient.js
 
-const BASE_URL = 'http://localhost:5000/api';
+// const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = 'https://inventory-management-system-71gh.onrender.com/';
 
 export const apiClient = async (endpoint, method = 'GET', bodyData = null) => {
   const config = {
