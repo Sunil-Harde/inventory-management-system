@@ -18,6 +18,7 @@ const createSupplier = async (req, res, next) => {
       email,
       contactPerson,
       address
+      
     });
 
     return res.status(201).json({
