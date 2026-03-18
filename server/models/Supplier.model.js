@@ -6,7 +6,7 @@ const suppliersSchema = new mongoose.Schema({
         required: true // Added 'd'
     },
     phone: {
-        type: String,
+        type: Number,
         required: true // Added 'd'
     },
     contactPerson: {
@@ -14,7 +14,7 @@ const suppliersSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        unique: false,
+        unique: true,
         required: true // Added 'd'
     },
     address: {

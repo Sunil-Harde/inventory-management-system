@@ -1,39 +1,62 @@
 // File: src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Toaster } from 'sonner'; // ✨ 1. Import Sonner
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'sonner';
 
-import Sidebar from './components/Sidebar';
+// Import Pages
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Inventory from './pages/Inventory';
-import Suppliers from './pages/Suppliers'; // <-- Import it here!
+import Suppliers from './pages/Suppliers';
 import Transactions from './pages/Transactions';
-import Reports from './pages/Reports';
-import StockOut from './pages/StockOut';
 import StockIn from './pages/StockIn';
-function App() {
-  return (
-    <Router>
-      <div className="flex min-h-screen bg-gray-50">
-        <Sidebar />
-        <div className="flex-1 overflow-x-hidden">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/inventory" element={<Inventory />} />
-            <Route path="/suppliers" element={<Suppliers />} /> {/* <-- Add Route here! */}
-            <Route path="/transactions" element={<Transactions />} /> {/* ✨ Add this line! */}
-            <Route path="/reports" element={<Reports />} /> {/* ✨ Add the Reports Route! */}
-            <Route path="/stock-out" element={<StockOut />} /> {/* ✨ Add the Stock Out Route! */}
-            <Route path="/stock-in" element={<StockIn/>} /> {/* ✨ Add the Stock Out Route! */}
-            
-          </Routes>
-        </div>
-      </div>
+import StockOut from './pages/StockOut';
+import Reports from './pages/Reports';
+import Users from './pages/User'; // ✨ 1. ADDED THIS IMPORT!
 
-      {/* ✨ 2. Add Toaster (richColors makes success green and error red) */}
-      <Toaster position="top-right" richColors closeButton />
+// Import Components
+import Sidebar from './components/Sidebar';
+
+// The Security Guard Component
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
+function App() {
+  const isLoginPage = window.location.pathname === '/login';
+
+  return (
+    <div className="flex bg-gray-50 min-h-screen">
+      <Toaster position="top-right" richColors />
       
-    </Router>
+      {!isLoginPage && <Sidebar />}
+
+      <div className="flex-1 overflow-x-hidden">
+        <Routes>
+          {/* Public Route */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Secure Routes */}
+          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
+          <Route path="/suppliers" element={<ProtectedRoute><Suppliers /></ProtectedRoute>} />
+          <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
+          <Route path="/stock-in" element={<ProtectedRoute><StockIn /></ProtectedRoute>} />
+          <Route path="/stock-out" element={<ProtectedRoute><StockOut /></ProtectedRoute>} />
+          <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+          
+          {/* ✨ 2. ADDED THE USERS ROUTE HERE! */}
+          <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+          
+          {/* ✨ Optional: Catch-all route. If a user types a weird URL, send them to the Dashboard */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </div>
   );
 }
 

@@ -15,10 +15,12 @@ const userSchema = new mongoose.Schema({
         type: String, 
         required: true 
     },
+   // Inside models/User.js
     role: { 
         type: String, 
-        enum: ['Admin', 'Manager', 'Staff'], 
-        default: 'Staff' 
+        // THE FIX: Make sure these are completely lowercase!
+        enum: ['admin', 'staff'], 
+        default: 'staff' 
     }
 }, { timestamps: true });
 

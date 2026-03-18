@@ -1,4 +1,4 @@
-const Product = require("../models/products.module.js"); // Make sure your Product schema is imported!
+const Product = require("../models/Product.model.js"); // Make sure your Product schema is imported!
 
 const getInventoryValuation = async (req, res) => {
     try {

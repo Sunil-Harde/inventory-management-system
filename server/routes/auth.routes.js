@@ -1,12 +1,12 @@
-// File: routes/auth.routes.js
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser } = require('../controllers/auth.controller.js');
+const { registerUser, loginUser, getProfile, deleteUser } = require('../controllers/auth.controller');
 
-// Becomes POST /api/auth/register
-router.post('/auth/register', registerUser);
+router.post('/register', registerUser);
+router.post('/login', loginUser);
+router.get('/profile', getProfile);
 
-// Becomes POST /api/auth/login
-router.post('/auth/login', loginUser);
+// NEW: The :id acts as a placeholder for the actual user ID
+router.delete('/users/:id', deleteUser); 
 
 module.exports = router;

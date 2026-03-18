@@ -4,12 +4,20 @@
 const BASE_URL = 'https://inventory-management-system-71gh.onrender.com/api';
 
 export const apiClient = async (endpoint, method = 'GET', bodyData = null) => {
+  // ✨ AUTH STEP 1: Grab the security token from the browser
+  const token = localStorage.getItem('token');
+
   const config = {
     method: method,
     headers: {
       'Content-Type': 'application/json',
     },
   };
+
+  // ✨ AUTH STEP 2: If the user is logged in, attach their VIP Badge (Token) to the request!
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
 
   if (bodyData && method !== 'GET') {
     config.body = JSON.stringify(bodyData);
@@ -23,6 +31,14 @@ export const apiClient = async (endpoint, method = 'GET', bodyData = null) => {
 
     const response = await fetch(targetUrl, config);
     
+    // ✨ AUTH STEP 3: Security Check - If the backend says "Unauthorized" (401), kick them out!
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login'; // Force them back to the login screen
+      return { success: false, message: 'Session expired. Please log in again.' };
+    }
+
     // Check if the response is actually JSON before parsing!
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {

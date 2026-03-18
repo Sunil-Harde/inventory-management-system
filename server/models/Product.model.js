@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 // This registers the Supplier model before the Product model tries to use it.
-require('./Supplier.module.js'); 
+require('./Supplier.model.js'); 
 
 const productSchema = new mongoose.Schema({
     partName: { type: String, required: true },
